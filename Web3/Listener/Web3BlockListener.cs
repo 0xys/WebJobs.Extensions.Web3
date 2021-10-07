@@ -17,6 +17,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private System.Timers.Timer _timer;
         private int _lastHeight = 0;
 
+        private int _cachedHeight = 0;
+
         public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
             _executor = executor;
@@ -30,7 +32,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 
         public void Cancel()
         {
-            throw new NotImplementedException();
+            _lastHeight = _cachedHeight;
         }
 
         public void Dispose()
@@ -52,7 +54,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 
         private async void OnTimer(object sender, ElapsedEventArgs e)
         {
-
+            _cachedHeight = _lastHeight;
         }
     }
 }

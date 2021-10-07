@@ -10,6 +10,7 @@ using WebJobs.Extensions.Web3.BlockTrigger.Models;
 using Nethereum.Web3;
 using System.Numerics;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 {
@@ -27,7 +28,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         {
             _executor = executor;
             _config = config;
-            _timer = new System.Timers.Timer(5 * 1000)
+            _timer = new System.Timers.Timer(12 * 1000)
             {
                 AutoReset = true
             };
@@ -75,17 +76,11 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
             for (var i = _lastHeight + 1; i <= nextLatest ; i++)
             {
                 var nextHeightHex = new HexBigInteger(i);
-                var block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex);
-
-                var triggerValue = new BlockInfo
-                {
-                    Hash = block.BlockHash,
-                    Height = block.Number.Value
-                };
+                BlockWithTransactions block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex);
 
                 var input = new TriggeredFunctionData
                 {
-                    TriggerValue = triggerValue
+                    TriggerValue = block
                 };
 
                 await _executor.TryExecuteAsync(input, CancellationToken.None);

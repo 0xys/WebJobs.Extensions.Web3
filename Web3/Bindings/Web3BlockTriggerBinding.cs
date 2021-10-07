@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Configuration;
+using Nethereum.RPC.Eth.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -27,13 +28,13 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
             _configuration = configuration;
         }
 
-        public Type TriggerValueType => typeof(BlockInfo);
+        public Type TriggerValueType => typeof(BlockWithTransactions);
 
         public IReadOnlyDictionary<string, Type> BindingDataContract => _bindingContract;
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            var triggerValue = value as BlockInfo;
+            var triggerValue = value as BlockWithTransactions;
             var valueProvider = new ValueProvider(triggerValue);
             var data = new TriggerData(valueProvider, CreateBindingData(triggerValue));
             return Task.FromResult<ITriggerData>(data);
@@ -70,11 +71,11 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
         private IReadOnlyDictionary<string, Type> CreateBindingDataContract()
         {
             var contract = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-            contract.Add("Web3BlockTrigger", typeof(BlockInfo));
+            contract.Add("Web3BlockTrigger", typeof(BlockWithTransactions));
             return contract;
         }
 
-        private IReadOnlyDictionary<string, object> CreateBindingData(BlockInfo value)
+        private IReadOnlyDictionary<string, object> CreateBindingData(BlockWithTransactions value)
         {
             var bindingData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             bindingData.Add("Web3BlockTrigger", value);
@@ -100,7 +101,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
                 _value = value;
             }
 
-            public Type Type => typeof(BlockInfo);
+            public Type Type => typeof(BlockWithTransactions);
             public Task<object> GetValueAsync()
             {
                 return Task.FromResult(_value);

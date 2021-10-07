@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Configuration;
+using Nethereum.RPC.Eth.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -26,7 +27,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
             if (attribute == null)
                 return Task.FromResult<ITriggerBinding>(null);
 
-            if(context.Parameter.ParameterType != typeof(BlockInfo))
+            if(context.Parameter.ParameterType != typeof(BlockWithTransactions))
                 throw new InvalidOperationException(string.Format("Can't bind {0} to type '{1}'",
                     nameof(Web3BlockTriggerAttribute), context.Parameter.ParameterType));
 

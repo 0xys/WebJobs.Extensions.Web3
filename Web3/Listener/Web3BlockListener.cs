@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using WebJobs.Extensions.Web3.BlockTrigger.Models;
+using Nethereum.Web3;
+using System.Numerics;
+using Nethereum.Hex.HexTypes;
 
 namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 {
@@ -15,9 +18,10 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private ITriggeredFunctionExecutor _executor;
         private ListenerConfig _config;
         private System.Timers.Timer _timer;
-        private int _lastHeight = 0;
 
-        private int _cachedHeight = 0;
+        private readonly IWeb3 _web3;
+        private BigInteger _lastHeight = 0;
+        private BigInteger _cachedHeight = 0;
 
         public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
@@ -28,6 +32,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
                 AutoReset = true
             };
             _timer.Elapsed += OnTimer;
+
+            _web3 = new Nethereum.Web3.Web3(config.Endpoint);
         }
 
         public void Cancel()
@@ -55,6 +61,41 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private async void OnTimer(object sender, ElapsedEventArgs e)
         {
             _cachedHeight = _lastHeight;
+
+            BigInteger foundHeight = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
+            if (!IsNewBlockFound(foundHeight))
+                return;
+
+            if(IsFirstTime)
+            {
+                _lastHeight = foundHeight - _config.Confirmation;
+            }
+
+            BigInteger nextLatest = foundHeight - _config.Confirmation;
+            for (var i = _lastHeight + 1; i <= nextLatest ; i++)
+            {
+                var nextHeightHex = new HexBigInteger(i);
+                var block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex);
+
+                var triggerValue = new BlockInfo
+                {
+                    Hash = block.BlockHash,
+                    Height = block.Number.Value
+                };
+
+                var input = new TriggeredFunctionData
+                {
+                    TriggerValue = triggerValue
+                };
+
+                await _executor.TryExecuteAsync(input, CancellationToken.None);
+            }
+
+            _lastHeight = nextLatest;
         }
+
+        private bool IsNewBlockFound(BigInteger foundHeight) => foundHeight > _lastHeight + _config.Confirmation;
+
+        private bool IsFirstTime => _lastHeight == 0;
     }
 }

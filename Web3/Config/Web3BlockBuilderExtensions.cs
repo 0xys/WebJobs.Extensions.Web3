@@ -12,7 +12,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Config
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            builder.AddExtension()
+            builder.AddExtension<Web3BlockExtensionConfigProvider>();
+            return builder;
         }
     }
 }

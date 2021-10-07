@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Hosting;
 using System;
 using WebJobs.Extensions.Web3.BlockTrigger;
+using WebJobs.Extensions.Web3.BlockTrigger.Web3.Config;
 
 [assembly: WebJobsStartup(typeof(Web3BlockTriggerStartup), "Timers, Files and Warmup")]
 namespace WebJobs.Extensions.Web3.BlockTrigger
@@ -10,7 +11,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger
     {
         public void Configure(IWebJobsBuilder builder)
         {
-            builder.
+            builder.AddWeb3BlockTrigger();
         }
     }
 }

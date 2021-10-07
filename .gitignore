@@ -1,0 +1,15 @@
+bin
+obj
+csx
+.vs/config/
+
+*.user
+*.suo
+*.cscfg
+*.Cache
+/.vs
+/packages
+/TestResults
+/buildoutput
+
+/tools/NuGet.exe

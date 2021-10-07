@@ -8,8 +8,4 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.30" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Web3\Listener\" />
-  </ItemGroup>
-
 </Project>

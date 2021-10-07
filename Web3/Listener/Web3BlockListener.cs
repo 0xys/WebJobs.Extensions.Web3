@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using WebJobs.Extensions.Web3.BlockTrigger.Models;
 
 namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
@@ -34,17 +35,24 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _timer.Dispose();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _timer.Start();
+            return Task.FromResult(true);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _timer.Stop();
+            return Task.FromResult(true);
+        }
+
+        private async void OnTimer(object sender, ElapsedEventArgs e)
+        {
+
         }
     }
 }

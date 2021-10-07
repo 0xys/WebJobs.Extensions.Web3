@@ -17,10 +17,10 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private System.Timers.Timer _timer;
         private int _lastHeight = 0;
 
-        public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig attribute)
+        public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
             _executor = executor;
-            _config = attribute;
+            _config = config;
             _timer = new System.Timers.Timer(5 * 1000)
             {
                 AutoReset = true

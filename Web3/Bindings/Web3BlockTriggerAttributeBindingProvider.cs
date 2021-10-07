@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.WebJobs.Host.Triggers;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,6 +10,13 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
 {
     public class Web3BlockTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
+        private readonly IConfiguration _configuration;
+
+        public Web3BlockTriggerAttributeBindingProvider(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
         {
             if (context == null)
@@ -22,7 +30,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
                 throw new InvalidOperationException(string.Format("Can't bind {0} to type '{1}'",
                     nameof(Web3BlockTriggerAttribute), context.Parameter.ParameterType));
 
-            var binding = new Web3BlockTriggerBinding(context.Parameter);
+            var binding = new Web3BlockTriggerBinding(context.Parameter, _configuration);
             return Task.FromResult<ITriggerBinding>(binding);
         }
     }

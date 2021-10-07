@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,10 +18,13 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
         private readonly ParameterInfo _parameter;
         private readonly IReadOnlyDictionary<string, Type> _bindingContract;
 
-        public Web3BlockTriggerBinding(ParameterInfo parameter)
+        private readonly IConfiguration _configuration;
+
+        public Web3BlockTriggerBinding(ParameterInfo parameter, IConfiguration configuration)
         {
             _parameter = parameter;
             _bindingContract = CreateBindingDataContract();
+            _configuration = configuration;
         }
 
         public Type TriggerValueType => typeof(BlockInfo);
@@ -41,7 +45,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
 
             var config = new ListenerConfig
             {
-                Endpoint = attr.Endpoint,
+                Endpoint = Resolve(attr.Endpoint),
                 FromHeight = attr.FromHeight,
                 Confirmation = attr.Confirmation
             };
@@ -75,6 +79,16 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
             var bindingData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             bindingData.Add("Web3BlockTrigger", value);
             return bindingData;
+        }
+
+        private string Resolve(string name)
+        {
+            if(name.StartsWith("%") && name.EndsWith("%"))
+            {
+                string key = name.Substring(1, name.Length - 2);
+                return _configuration.GetValue<string>(key);
+            }
+            return name;
         }
 
         private class ValueProvider: IValueProvider

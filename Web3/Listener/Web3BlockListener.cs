@@ -24,6 +24,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private BigInteger _lastHeight = 0;
         private BigInteger _cachedHeight = 0;
 
+        private bool _disposed;
+
         public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
             _executor = executor;
@@ -39,16 +41,22 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 
         public void Cancel()
         {
+            ThrowIfDisposed();
             _lastHeight = _cachedHeight;
         }
 
         public void Dispose()
         {
-            _timer.Dispose();
+            if (!_disposed)
+            {
+                _timer.Dispose();
+                _disposed = true;
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
             _timer.Start();
             return Task.FromResult(true);
         }
@@ -92,5 +100,13 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
         private bool IsNewBlockFound(BigInteger foundHeight) => foundHeight > _lastHeight + _config.Confirmation;
 
         private bool IsFirstTime => _lastHeight == 0;
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
+        }
     }
 }

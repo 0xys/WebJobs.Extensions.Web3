@@ -90,8 +90,12 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
                 {
                     TriggerValue = block
                 };
-
-                await _executor.TryExecuteAsync(input, CancellationToken.None);
+                
+                var res = await _executor.TryExecuteAsync(input, CancellationToken.None);
+                if (!res.Succeeded)
+                {
+                    // TODO: handle Function execution failure
+                }
             }
 
             _lastHeight = nextLatest;

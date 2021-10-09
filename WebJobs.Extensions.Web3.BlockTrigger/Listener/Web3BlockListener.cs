@@ -35,7 +35,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             _logger = loggerFactory.CreateLogger<Web3BlockListener>();
             _executor = executor;
             _config = config;
-            _timer = new System.Timers.Timer(12 * 1000)
+            _timer = new System.Timers.Timer(5 * 1000)
             {
                 AutoReset = true
             };
@@ -83,11 +83,13 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             if (!success)
             {
                 _logger.LogTrace($"Failed to fetch current block");
+                _running = false;
                 return;
             }
             if (!IsNewBlockFound(foundHeight))
             {
                 _logger.LogTrace($"No new blocks found");
+                _running = false;
                 return;
             }
 

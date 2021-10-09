@@ -76,9 +76,12 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 
             BigInteger foundHeight = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
             if (!IsNewBlockFound(foundHeight))
+            {
+                _logger.LogTrace($"No new blocks found");
                 return;
+            }
 
-            if(IsFirstTime)
+            if (IsFirstTime)
             {
                 _lastHeight = foundHeight - _config.Confirmation;
             }

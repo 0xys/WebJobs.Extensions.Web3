@@ -128,9 +128,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
         {
             foreach(var web3 in _web3s)
             {
-                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
                 var response = await TimeOutRetriableJobHandler
-                    .ExecuteWithTimeout(delayStrategy,
+                    .ExecuteWithTimeout(DelayStrategy.DefaultDelayStrategy,
                         () => web3.Eth.Blocks.GetBlockNumber.SendRequestAsync());
                 if (response.success)
                     return (true, response.res.Value);
@@ -144,9 +143,8 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             var nextHeightHex = new HexBigInteger(number);
             foreach (var web3 in _web3s)
             {
-                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
                 var response = await TimeOutRetriableJobHandler
-                    .ExecuteWithTimeout(delayStrategy,
+                    .ExecuteWithTimeout(DelayStrategy.DefaultDelayStrategy,
                         () => web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
                 if (response.success)
                     return (true, response.res);

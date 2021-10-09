@@ -55,5 +55,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             if (minInterval > maxInterval)
                 throw new ArgumentException("minInterval must be less than maxInterval");
         }
+
+        public static DelayStrategy DefaultDelayStrategy => new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
     }
 }

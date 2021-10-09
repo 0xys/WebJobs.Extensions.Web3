@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nethereum.RPC.Eth.DTOs;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,14 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
         private readonly IReadOnlyDictionary<string, Type> _bindingContract;
 
         private readonly IConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public Web3BlockTriggerBinding(ParameterInfo parameter, IConfiguration configuration)
+        public Web3BlockTriggerBinding(ParameterInfo parameter, IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             _parameter = parameter;
             _bindingContract = CreateBindingDataContract();
             _configuration = configuration;
+            _loggerFactory = loggerFactory;
         }
 
         public Type TriggerValueType => typeof(BlockWithTransactions);
@@ -50,7 +53,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
                 FromHeight = attr.FromHeight,
                 Confirmation = attr.Confirmation
             };
-            var listener = new Web3BlockListener(context.Executor, config);
+            var listener = new Web3BlockListener(_loggerFactory, context.Executor, config);
             return Task.FromResult<IListener>(listener);
         }
 

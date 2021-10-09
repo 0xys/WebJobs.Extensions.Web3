@@ -11,23 +11,26 @@ using Nethereum.Web3;
 using System.Numerics;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
+using Microsoft.Extensions.Logging;
 
 namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
 {
     public class Web3BlockListener : IListener
     {
-        private ITriggeredFunctionExecutor _executor;
-        private ListenerConfig _config;
-        private System.Timers.Timer _timer;
-
+        private readonly ILogger<Web3BlockListener> _logger;
+        private readonly ITriggeredFunctionExecutor _executor;
+        private readonly ListenerConfig _config;
+        private readonly System.Timers.Timer _timer;
         private readonly IWeb3 _web3;
+
         private BigInteger _lastHeight = 0;
         private BigInteger _cachedHeight = 0;
 
         private bool _disposed;
 
-        public Web3BlockListener(ITriggeredFunctionExecutor executor, ListenerConfig config)
+        public Web3BlockListener(ILoggerFactory loggerFactory, ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
+            _logger = loggerFactory.CreateLogger<Web3BlockListener>();
             _executor = executor;
             _config = config;
             _timer = new System.Timers.Timer(12 * 1000)
@@ -89,6 +92,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
                     .ExecuteWithTimeout<BlockWithTransactions>(delayStrategy, () => _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
                 if (!response.success)
                 {
+                    _logger.LogWarning($"block number {i} failed to fetch.");
                     // TODO: handle failed rpc request
                 }
 

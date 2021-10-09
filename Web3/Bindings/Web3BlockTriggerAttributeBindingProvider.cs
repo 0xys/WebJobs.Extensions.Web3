@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nethereum.RPC.Eth.DTOs;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,12 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
     public class Web3BlockTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly IConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public Web3BlockTriggerAttributeBindingProvider(IConfiguration configuration)
+        public Web3BlockTriggerAttributeBindingProvider(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             _configuration = configuration;
+            _loggerFactory = loggerFactory;
         }
 
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
@@ -31,7 +34,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
                 throw new InvalidOperationException(string.Format("Can't bind {0} to type '{1}'",
                     nameof(Web3BlockTriggerAttribute), context.Parameter.ParameterType));
 
-            var binding = new Web3BlockTriggerBinding(context.Parameter, _configuration);
+            var binding = new Web3BlockTriggerBinding(context.Parameter, _configuration, _loggerFactory);
             return Task.FromResult<ITriggerBinding>(binding);
         }
     }

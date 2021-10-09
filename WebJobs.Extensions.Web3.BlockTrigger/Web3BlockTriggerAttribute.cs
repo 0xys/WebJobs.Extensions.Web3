@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3
+namespace WebJobs.Extensions.Web3.BlockTrigger
 {
 
     [AttributeUsage(AttributeTargets.Parameter)]

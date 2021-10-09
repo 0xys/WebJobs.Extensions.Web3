@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
+namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 {
     public static class TimeOutRetriableJobHandler
     {

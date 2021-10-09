@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings;
+using WebJobs.Extensions.Web3.BlockTrigger.Bindings;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Config
+namespace WebJobs.Extensions.Web3.BlockTrigger.Config
 {
     public class Web3BlockExtensionConfigProvider : IExtensionConfigProvider
     {

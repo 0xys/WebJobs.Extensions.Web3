@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
+namespace WebJobs.Extensions.Web3.BlockTrigger.Bindings
 {
     public class Web3BlockTriggerAttributeBindingProvider : ITriggerBindingProvider
     {

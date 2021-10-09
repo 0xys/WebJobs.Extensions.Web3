@@ -11,9 +11,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using WebJobs.Extensions.Web3.BlockTrigger.Models;
-using WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener;
+using WebJobs.Extensions.Web3.BlockTrigger.Listener;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Bindings
+namespace WebJobs.Extensions.Web3.BlockTrigger.Bindings
 {
     public class Web3BlockTriggerBinding : ITriggerBinding
     {

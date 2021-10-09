@@ -13,7 +13,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Microsoft.Extensions.Logging;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
+namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 {
     public class Web3BlockListener : IListener
     {

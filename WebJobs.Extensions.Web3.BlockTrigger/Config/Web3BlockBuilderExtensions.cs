@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Config
+namespace WebJobs.Extensions.Web3.BlockTrigger.Config
 {
     public static class Web3BlockBuilderExtensions
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
+namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 {
     public class DelayStrategy: IDelayStrategy
     {

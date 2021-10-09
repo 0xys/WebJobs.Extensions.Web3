@@ -49,7 +49,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Bindings
 
             var config = new ListenerConfig
             {
-                Endpoint = Resolve(attr.Endpoint),
+                Endpoints = new string[] { Resolve(attr.Endpoint) },
                 FromHeight = attr.FromHeight,
                 Confirmation = attr.Confirmation
             };

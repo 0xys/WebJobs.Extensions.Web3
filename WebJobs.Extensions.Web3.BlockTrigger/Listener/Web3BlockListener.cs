@@ -12,6 +12,7 @@ using System.Numerics;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 {
@@ -21,7 +22,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
         private readonly ITriggeredFunctionExecutor _executor;
         private readonly ListenerConfig _config;
         private readonly System.Timers.Timer _timer;
-        private readonly IWeb3 _web3;
+        private readonly IEnumerable<IWeb3> _web3s;
 
         private BigInteger _lastHeight = 0;
         private BigInteger _cachedHeight = 0;
@@ -39,8 +40,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
                 AutoReset = true
             };
             _timer.Elapsed += OnTimer;
-
-            _web3 = new Nethereum.Web3.Web3(config.Endpoint);
+            _web3s = config.Endpoints.Select(x => new Nethereum.Web3.Web3(x));
         }
 
         public void Cancel()
@@ -79,7 +79,12 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 
             _cachedHeight = _lastHeight;
 
-            BigInteger foundHeight = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
+            var (success, foundHeight) = await GetCurrentBlockNumber();
+            if (!success)
+            {
+                _logger.LogTrace($"Failed to fetch current block");
+                return;
+            }
             if (!IsNewBlockFound(foundHeight))
             {
                 _logger.LogTrace($"No new blocks found");
@@ -94,10 +99,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             BigInteger nextLatest = foundHeight - _config.Confirmation;
             for (var i = _lastHeight + 1; i <= nextLatest ; i++)
             {
-                var nextHeightHex = new HexBigInteger(i);
-                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
-                var response = await TimeOutRetriableJobHandler
-                    .ExecuteWithTimeout<BlockWithTransactions>(delayStrategy, () => _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
+                var response = await GetBlockAt(i);
                 if (!response.success)
                 {
                     _logger.LogWarning($"block number {i} failed to fetch.");
@@ -106,7 +108,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 
                 var input = new TriggeredFunctionData
                 {
-                    TriggerValue = response.res
+                    TriggerValue = response.block
                 };
                 
                 var res = await _executor.TryExecuteAsync(input, CancellationToken.None);
@@ -118,6 +120,37 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 
             _lastHeight = nextLatest;
             _running = false;
+        }
+
+        private async Task<(bool success, BigInteger number)> GetCurrentBlockNumber()
+        {
+            foreach(var web3 in _web3s)
+            {
+                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
+                var response = await TimeOutRetriableJobHandler
+                    .ExecuteWithTimeout(delayStrategy,
+                        () => web3.Eth.Blocks.GetBlockNumber.SendRequestAsync());
+                if (response.success)
+                    return (true, response.res.Value);
+            }
+
+            return (false, 0);
+        }
+
+        private async Task<(bool success, BlockWithTransactions block)> GetBlockAt(BigInteger number)
+        {
+            var nextHeightHex = new HexBigInteger(number);
+            foreach (var web3 in _web3s)
+            {
+                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
+                var response = await TimeOutRetriableJobHandler
+                    .ExecuteWithTimeout(delayStrategy,
+                        () => web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
+                if (response.success)
+                    return (true, response.res);
+            }
+
+            return (false, null);
         }
 
         private bool IsNewBlockFound(BigInteger foundHeight) => foundHeight > _lastHeight + _config.Confirmation;

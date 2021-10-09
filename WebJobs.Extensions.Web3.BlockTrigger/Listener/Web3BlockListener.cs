@@ -27,6 +27,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
         private BigInteger _cachedHeight = 0;
 
         private bool _disposed;
+        private bool _running;
 
         public Web3BlockListener(ILoggerFactory loggerFactory, ITriggeredFunctionExecutor executor, ListenerConfig config)
         {
@@ -72,6 +73,10 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 
         private async void OnTimer(object sender, ElapsedEventArgs e)
         {
+            if (_running)
+                return;
+            _running = true;
+
             _cachedHeight = _lastHeight;
 
             BigInteger foundHeight = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
@@ -112,6 +117,7 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             }
 
             _lastHeight = nextLatest;
+            _running = false;
         }
 
         private bool IsNewBlockFound(BigInteger foundHeight) => foundHeight > _lastHeight + _config.Confirmation;

@@ -1,7 +1,10 @@
-# Web3.BlockTrigger
- Custom Trigger Binding for the use of Microsoft Azure Functions, triggered by Ethereum block event.
+# Web3 Extension for Azure Functions
+ This extension provides trigger bindings in Microsoft [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview), allowing you to interact with web3-compatible blockchain event frictionlessly, powered by [Web3 Provider](https://nethereum.readthedocs.io/en/latest/introduction/web3/) of [Nethereum](https://nethereum.readthedocs.io/en/latest/) project. Currently, following trigger is actively developed.
+
+- **BlockTrigger**: triggered by ethereum block event.
 
 ## Usage
+### BlockTrigger
 ```cs
 
 // Set endpoint URL inline

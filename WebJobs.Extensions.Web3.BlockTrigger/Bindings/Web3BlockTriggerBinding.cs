@@ -87,6 +87,9 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Bindings
 
         private string Resolve(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("Cannot resolve null string");
+
             if(name.StartsWith("%") && name.EndsWith("%"))
             {
                 string key = name.Substring(1, name.Length - 2);

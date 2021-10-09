@@ -84,11 +84,17 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Web3.Listener
             for (var i = _lastHeight + 1; i <= nextLatest ; i++)
             {
                 var nextHeightHex = new HexBigInteger(i);
-                BlockWithTransactions block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex);
+                var delayStrategy = new DelayStrategy(TimeSpan.FromMilliseconds(100), TimeSpan.FromMinutes(1));
+                var response = await TimeOutRetriableJobHandler
+                    .ExecuteWithTimeout<BlockWithTransactions>(delayStrategy, () => _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
+                if (!response.success)
+                {
+                    // TODO: handle failed rpc request
+                }
 
                 var input = new TriggeredFunctionData
                 {
-                    TriggerValue = block
+                    TriggerValue = response.res
                 };
                 
                 var res = await _executor.TryExecuteAsync(input, CancellationToken.None);

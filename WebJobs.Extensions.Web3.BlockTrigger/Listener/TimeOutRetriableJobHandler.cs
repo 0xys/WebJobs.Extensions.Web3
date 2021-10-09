@@ -31,6 +31,22 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
             }
         }
 
+        public static async Task<(bool success, T res)> ExecuteWithTimeout<T>(IDelayStrategy delayStrategy, Func<Task<T>> job, CancellationToken cancellationToken)
+        {
+            Task timeoutTask = Task.Delay(DefaultTimeout, cancellationToken);
+            Task<T> retriableJobTask = ExecuteWithDelayStrategy<T>(delayStrategy, job, cancellationToken);
+
+            Task firstCompletedTask = await Task.WhenAny(timeoutTask, retriableJobTask);
+
+            if (Equals(firstCompletedTask, timeoutTask))
+            {
+                return (false, default(T));
+            }
+
+            var res = await retriableJobTask;
+            return (true, res);
+        }
+
         private static async Task<T> ExecuteWithDelayStrategy<T>(IDelayStrategy delayStrategy, Func<Task<T>> job, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)

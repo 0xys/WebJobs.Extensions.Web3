@@ -126,31 +126,33 @@ namespace WebJobs.Extensions.Web3.BlockTrigger.Listener
 
         private async Task<(bool success, BigInteger number)> GetCurrentBlockNumber()
         {
-            foreach(var web3 in _web3s)
-            {
-                var response = await TimeOutRetriableJobHandler
+            var tasks = _web3s.Select(
+                x => TimeOutRetriableJobHandler
                     .ExecuteWithTimeout(DelayStrategy.DefaultDelayStrategy,
-                        () => web3.Eth.Blocks.GetBlockNumber.SendRequestAsync());
-                if (response.success)
-                    return (true, response.res.Value);
-            }
+                        () => x.Eth.Blocks.GetBlockNumber.SendRequestAsync())
+                );
 
-            return (false, 0);
+            var res = await ParallelJobHandler.RunParallelAndAwaitFirstCompletion(tasks);
+            if (!res.success)
+                return (false, 0);
+
+            return (true, res.res.Value);
         }
 
         private async Task<(bool success, BlockWithTransactions block)> GetBlockAt(BigInteger number)
         {
             var nextHeightHex = new HexBigInteger(number);
-            foreach (var web3 in _web3s)
-            {
-                var response = await TimeOutRetriableJobHandler
+            var tasks = _web3s.Select(
+                x => TimeOutRetriableJobHandler
                     .ExecuteWithTimeout(DelayStrategy.DefaultDelayStrategy,
-                        () => web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex));
-                if (response.success)
-                    return (true, response.res);
-            }
+                        () => x.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(nextHeightHex))
+                );
 
-            return (false, null);
+            var res = await ParallelJobHandler.RunParallelAndAwaitFirstCompletion(tasks);
+            if (!res.success)
+                return (false, null);
+
+            return (true, res.res);
         }
 
         private bool IsNewBlockFound(BigInteger foundHeight) => foundHeight > _lastHeight + _config.Confirmation;

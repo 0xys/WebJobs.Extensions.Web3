@@ -4,7 +4,7 @@ using System;
 using WebJobs.Extensions.Web3.BlockTrigger;
 using WebJobs.Extensions.Web3.BlockTrigger.Config;
 
-[assembly: WebJobsStartup(typeof(Web3BlockTriggerStartup), "Timers, Files and Warmup")]
+[assembly: WebJobsStartup(typeof(Web3BlockTriggerStartup))]
 namespace WebJobs.Extensions.Web3.BlockTrigger
 {
     public class Web3BlockTriggerStartup : IWebJobsStartup

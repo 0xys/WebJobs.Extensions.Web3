@@ -20,11 +20,13 @@ namespace WebJobs.Extensions.Web3.Listener
         private bool _disposed;
         private bool _started;
 
+        private const int DefaultTimeInterval = 5000;
+
         public Web3Listener(ILoggerFactory loggerFactory, IWeb3ListenerConfig config)
         {
             _logger = loggerFactory.CreateLogger<Web3Listener>();
             _config = config;
-            _timer = new System.Timers.Timer(5 * 1000)
+            _timer = new System.Timers.Timer(DefaultTimeInterval)
             {
                 AutoReset = true
             };

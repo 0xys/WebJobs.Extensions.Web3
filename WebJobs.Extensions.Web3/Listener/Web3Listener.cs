@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WebJobs.Extensions.Web3.Listener
 {
-    class Web3Listener
+    public class Web3Listener
     {
     }
 }

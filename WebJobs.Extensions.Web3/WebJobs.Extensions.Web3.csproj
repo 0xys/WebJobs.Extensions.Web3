@@ -9,4 +9,8 @@
     <PackageReference Include="Nethereum.RPC" Version="4.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handler\" />
+  </ItemGroup>
+
 </Project>

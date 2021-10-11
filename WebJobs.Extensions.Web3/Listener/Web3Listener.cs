@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using WebJobs.Extensions.Web3.Blockchain;
 
 namespace WebJobs.Extensions.Web3.Listener
 {
@@ -13,7 +14,7 @@ namespace WebJobs.Extensions.Web3.Listener
     {
         private readonly ILogger<Web3Listener> _logger;
         private readonly IEnumerable<IWeb3ListenerClient> _clientRegistry;
-        private readonly IEnumerable<BlockWithTransactions> _cache;
+        private readonly IBlockchainCache<BlockWithTransactions> _cache;
         private readonly System.Timers.Timer _timer;
         private readonly IWeb3ListenerConfig _config;
 
